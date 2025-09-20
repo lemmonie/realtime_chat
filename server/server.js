@@ -1,7 +1,7 @@
-const express = require("express");    // ask for the processor help me to deal with the router
-const http = require("http");          // node.js's http in build model
-const {Server} = require("socket.io"); // making it to be able to put on http server anf doing real time both way communication
-const app = express();                 // all the http request processor
+const express = require("express"); // ask for the processor help me to deal with the router
+const http = require("http"); // node.js's http in build model
+const { Server } = require("socket.io"); // making it to be able to put on http server anf doing real time both way communication
+const app = express(); // all the http request processor
 
 // making a port that the https and socket.io could be in the same server
 const server = http.createServer(app);
@@ -26,5 +26,3 @@ io.on("connection", (socket) => {
 server.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
-
-
