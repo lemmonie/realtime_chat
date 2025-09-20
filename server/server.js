@@ -8,6 +8,7 @@ const server = http.createServer(app);
 
 // tie the socket io on the new server
 const io = new Server(server);
+const helo = 0;
 
 // make a check in the http router is normal or not
 app.get("/", (req, res) => {
