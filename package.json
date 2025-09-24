@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky",
+    "prepare": "husky install",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
@@ -28,21 +28,21 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.36.0",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.6",
+    "lint-staged": "^16.2.0",
     "prettier": "^3.6.2"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
+      "npx eslint --fix"
     ],
     "**/*.{json,md,css}": [
-      "prettier --write"
+      "npx prettier --write"
     ]
   }
 }
