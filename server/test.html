@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket Test</title>
+    <!-- 引入 Socket.io 前端程式庫 -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  </head>
+  <body>
+    <h1>Socket.io Test</h1>
+    <script>
+      // 嘗試連線到你的 server
+      const socket = io("http://localhost:3000");
+
+      // 當連線成功時，會在瀏覽器 console 印出訊息
+      socket.on("connect", () => {
+        console.log("✅ 已連線，ID:", socket.id);
+      });
+    </script>
+  </body>
+</html>

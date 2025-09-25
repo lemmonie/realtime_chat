@@ -1,29 +1,46 @@
-const express = require("express"); // ask for the processor help me to deal with the router
-const http = require("http"); // node.js's http in build model
-const { Server } = require("socket.io"); // making it to be able to put on http server anf doing real time both way communication
-const app = express(); // all the http request processor
+import express from "express"; // ask for the processor help me to deal with the router
+import http from "http";       // node.js's http in build model
+import { Server } from "socket.io" // making it to be able to put on http server anf doing real time both way communication
+import cors from "cors" // all the http request processor
+import dotenv from "dotenv";  // load the .env file
+import { uptime } from "process";
+import console from "console";
+import process from "process";
 
-// making a port that the https and socket.io could be in the same server
-const server = http.createServer(app);
+dotenv.config();            // execute the config
 
-// tie the socket io on the new server
-const io = new Server(server);
-const helo = 0;
+const app = express();
+app.use(cors());            // use the cors to avoid the cors problem 
+app.use(express.json());    // let the express to support json format 
 
-// make a check in the http router is normal or not
-app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
+// health check
+app.get("/health", (req, res) => {
+  res.json({ ok: true, uptime: uptime()});
 });
 
-// listening to the connection, when people online/offlne you will see the log
-io.on("connection", (socket) => {
-  console.log("A user connected");
+
+//testing API
+app.get("/ping", (req, res) => {
+  res.send("pong");
+});
+
+// build https server and socket.io server
+const server = http.createServer(app); // create the http server with express app
+const io = new Server(server, {       // create the socket.io server and bind it to the http server
+  cors: {                             // allow the cors from the front end
+    origin: "*",     // only allow get and post method
+  },
+});
+
+io.on("connection", (socket) => { // when the client connect to the server
+  console.log("User connected: ${socket.id}");
+  
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    console.log("Client disconnected: ", socket.id);  // when the client join the room
   });
 });
 
-// let the http.Server (including express and socket.io connect on port 3000)
-server.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
-});
+const PORT = process.env.PORT || 3000; // get the port from the .env file or use 3001 as default
+server.listen(PORT, () => {             // start the server
+  console.log(`Server is running on port ${PORT}`);
+}); 
