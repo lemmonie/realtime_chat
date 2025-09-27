@@ -3,8 +3,7 @@ import { Server } from "socket.io";
 import console from "console";
 
 /**
- * 綁定 Socket.io 到現有的 httpServer
- * 並設定「send_message → message_created」事件流
+ * itialize and attach Socket.IO to the given HTTP server
  */
 export function attachSocket(httpServer) {
   const io = new Server(httpServer, {
@@ -12,33 +11,51 @@ export function attachSocket(httpServer) {
   });
 
   io.on("connection", (socket) => {
-    console.log(`[socket] connected: ${socket.id}`);
+    console.log("✅[socket] connected: ${socket.id}");
 
-    // 客戶端送來訊息
+    // make a presetted soom, generate a chat room
+    const room = "general";
+    socket.join(room);
+
+    /**
+     * 1. sending message from user:
+     *  payload structure: { text: string, senderId?: string, conversationId?: string }
+     */
     socket.on("send_message", (payload) => {
-      // payload 建議長這樣：{ text, senderId, conversationId }
-      const msg = {
-        id: cryptoRandomId(),             // 臨時用；未連 DB
-        text: String(payload?.text || ""),
-        senderId: payload?.senderId ?? "anon",
-        conversationId: payload?.conversationId ?? "general",
-        createdAt: new Date().toISOString(),
-      };
+      // 2. make a standard message for server + id and timestamp
+      const msg = normalizeMessage(payload);
 
-      // 廣播給所有人（含自己）：message_created
+      // 3a. broadcast to all connected clients, inclusing myself
       io.emit("message_created", msg);
       console.log("[socket] message_created:", msg);
+
+      // 3b. broadcast to all clients in one room (except myself)
+      const targetRoom = payload?.conversationId || room;
+      io.to(targetRoom).emit("message_created", msg);
+      console.log("📣 message_created:", msg);
+
+
     });
 
     socket.on("disconnect", (reason) => {
-      console.log(`[socket] disconnected: ${socket.id} (${reason})`);
+      console.log("🛑 [socket] disconnected: ${socket.id} (${reason})");
     });
   });
 
   return io;
 }
 
-// 簡單產生隨機 id（未連 DB 前先用）
-function cryptoRandomId() {
-  return Math.random().toString(36).slice(2, 10);
+// function cryptoRandomId() {
+//   return Math.random().toString(36).slice(2, 10);
+// }
+
+function normalizeMessage(payload) {
+  return {
+    id: Math.random().toString(36).slice(2, 10),
+    text: String(payload?.text || ""),
+    senderId: payload?.senderId ?? "anon",
+    conversationId: payload?.conversationId ?? "general",
+    createdAt: new Date().toISOString(),
+
+  };
 }
